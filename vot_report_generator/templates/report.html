@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/pure-min.css" integrity="sha384-cg6SkqEOCV1NbJoCu11+bm0NvBRc8IYLRGXkmNrqUBfTjmMYwNKPWBTIKyw9mHNJ" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/grids-responsive-min.css">
+    <title>{{ title }}</title>
+</head>
+<body>
+    <div class="pure-g">
+        <div class="pure-u-1-12"></div>
+        <div class="pure-u-5-6">
+            <h2>{{ title }}</h2>
+            <h3>Intersection over union measures aggregated for all tests</h3>
+            <table class="pure-table">
+                <tr>
+                    <th>Mean</th>
+                    <th>Median</th>
+                    <th>Standard deviation</th>
+                </tr>
+                <tr>
+                    <th>{{ "%.4f"|format(mean_iou) }}</th>
+                    <th>{{ "%.4f"|format(median_iou) }}</th>
+                    <th>{{ "%.4f"|format(stdev_iou) }}</th>
+                </tr>
+            </table>
+            <img class="pure-img" src="../images/{{ iou_percents_aggregated_filename }}"
+            alt="iou_percents">
+            <img class="pure-img" src="../images/{{ bar_percents_aggregated_filename }}"
+            alt="iou_percents">
+            <img class="pure-img" src="../images/{{ iou_per_test_filename }}"
+            alt="iou_percents">
+            <h3>Algorithms execution FPS</h3>
+            <table class="pure-table">
+                <tr>
+                    <th>Description</th>
+                    <th>Mean</th>
+                    <th>Median</th>
+                    <th>Standard deviation</th>
+                </tr>
+                {% for field in stopwatch_stats_aggregated %}
+                    <tr>
+                        <th>{{ field['name'] }}</th>
+                        <th>{{ "%.4f"|format(field['mean']) }}</th>
+                        <th>{{ "%.4f"|format(field['median']) }}</th>
+                        <th>{{ "%.4f"|format(field['stdev']) }}</th>
+                    </tr>
+                {% endfor %}
+            </table>
+            {% for test in separate_tests_stats %}
+
+                <h2> {{ test.name }} </h2>
+                <table class="pure-table">
+                    <tr>
+                        <th>Mean</th>
+                        <th>Median</th>
+                        <th>Standard deviation</th>
+                        <th>Number of frames</th>
+                    </tr>
+                    <tr>
+                        <th>{{ "%.4f"|format(test.mean_iou) }}</th>
+                        <th>{{ "%.4f"|format(test.median_iou) }}</th>
+                        <th>{{ "%.4f"|format(test.stdev_iou) }}</th>
+                        <th>{{ "%d"|format(test.nFrames) }}</th>
+                    </tr>
+                </table>
+                <img class="pure-img" src="../images/{{ test.iou_frame_filename }}" alt="iou_percents">
+                <img class="pure-img" src="../images/{{ test.iou_bbox_size_filename }}" alt="iou_percents">
+            {% endfor %}
+        </div>
+        <div class="pure-u-1-12"></div>
+    </div>
+</body>
+</html>

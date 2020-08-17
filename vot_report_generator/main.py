@@ -85,7 +85,7 @@ def create_title(config, nTests):
     return title
 
 def save_and_clear_plot(filename):
-    plt.savefig(Path('images') / Path(filename))
+    plt.savefig(Path('output/images') / Path(filename))
     plt.cla()
 
 def plot_iou_percents(lst, filename):
@@ -220,7 +220,7 @@ def create_html(tables, config, filenames, stopwatch):
 
     # create the html
     template = env.get_template("report.html")
-    with open("output/report.html", 'w') as f:
+    with open("output/index.html", 'w') as f:
         f.write(template.render(
             title=title,
             mean_iou=mean_iou,

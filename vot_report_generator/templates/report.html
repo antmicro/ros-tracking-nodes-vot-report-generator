@@ -25,11 +25,11 @@
                     <th>{{ "%.4f"|format(stdev_iou) }}</th>
                 </tr>
             </table>
-            <img class="pure-img" src="../images/{{ iou_percents_aggregated_filename }}"
+            <img class="pure-img" src="images/{{ iou_percents_aggregated_filename }}"
             alt="iou_percents">
-            <img class="pure-img" src="../images/{{ bar_percents_aggregated_filename }}"
+            <img class="pure-img" src="images/{{ bar_percents_aggregated_filename }}"
             alt="iou_percents">
-            <img class="pure-img" src="../images/{{ iou_per_test_filename }}"
+            <img class="pure-img" src="images/{{ iou_per_test_filename }}"
             alt="iou_percents">
             <h3>Algorithms execution FPS</h3>
             <table class="pure-table">
@@ -65,8 +65,8 @@
                         <th>{{ "%d"|format(test.nFrames) }}</th>
                     </tr>
                 </table>
-                <img class="pure-img" src="../images/{{ test.iou_frame_filename }}" alt="iou_percents">
-                <img class="pure-img" src="../images/{{ test.iou_bbox_size_filename }}" alt="iou_percents">
+                <img class="pure-img" src="images/{{ test.iou_frame_filename }}" alt="iou_percents">
+                <img class="pure-img" src="images/{{ test.iou_bbox_size_filename }}" alt="iou_percents">
             {% endfor %}
         </div>
         <div class="pure-u-1-12"></div>

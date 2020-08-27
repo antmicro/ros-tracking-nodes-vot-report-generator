@@ -73,7 +73,10 @@ def make_stopwatch_stats(data):
     stats = {}
     stats['mean'] = statistics.mean(data)
     stats['median'] = statistics.median(data)
-    stats['stdev'] = statistics.stdev(data)
+    if len(data) > 1:
+        stats['stdev'] = statistics.stdev(data)
+    else:
+        stats['stdev'] = 0
     stats['data'] = data
     return stats
 

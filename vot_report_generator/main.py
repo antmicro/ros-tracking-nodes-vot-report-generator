@@ -80,7 +80,7 @@ def make_stopwatch_stats(data):
 def create_title(config, nTests):
     title = ""
     with open(config) as cfg:
-        visualize, fps, policy = cfg.readline().split()
+        fps, policy = cfg.readline().split()
         title = f"{policy} running at {'unlimited' if int(fps) == 0 else f'forced {fps}'} fps on {nTests} {'tests' if nTests != 1 else 'test'}"
     return title
 

@@ -14,6 +14,12 @@ import math
 from os import listdir
 from os.path import isfile, join
 from collections import Counter, defaultdict
+import pandas as pd
+
+import index
+import policy_index
+import policy_summary
+import policy_test
 
 env = Environment(
     loader=FileSystemLoader(searchpath="template")
@@ -21,6 +27,7 @@ env = Environment(
 
 def read_dir(path):
     files = [f for f in listdir(path) if isfile(join(path, f))]
+    files = sorted(files)
     csvs = []
     stopwatch = []
     for file in files:
@@ -69,7 +76,6 @@ def read_stopwatch(filename):
     return stopwatch_stats
 
 def make_stopwatch_stats(data):
-    
     stats = {}
     stats['mean'] = statistics.mean(data)
     stats['median'] = statistics.median(data)
@@ -236,13 +242,58 @@ def create_html(tables, config, filenames, stopwatch):
             stopwatch_stats_aggregated=stopwatch_stats_aggregated
             ))
 
+def readidx(path):
+    index = {}
+    with open(path, 'r') as file:
+        for row in file:
+            key, value = row.split('=')
+            value = value[:-1]
+            index[key] = value
+    return index
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('input_dir', type=Path)
-    parser.add_argument('config', type=Path)
+    parser.add_argument('tests_output_path', type=Path)
+    parser.add_argument('tests_input_path', type=Path)
     args = parser.parse_args()
-    filenames, csvs, stopwatch = read_dir(args.input_dir)
-    create_html(csvs, args.config, filenames, stopwatch)
+    idx = readidx(args.tests_output_path / 'test.index')
+
+    plt.style.use('ggplot')
+    plt.rcParams['figure.figsize'] = (21, 7)
+
+    policy_links = {}
+    policy_fps = {}
+    test_results = {}
+    for policyit in range(int(idx['policies'])):
+        name = idx[f'policyname{policyit + 1}']
+        fps = int(idx[f'policyfps{policyit + 1}'])
+        policy_links[name] = Path(name)
+        policy_fps[name] = fps
+        test_results[name] = {}
+        for testit in range(int(idx['tests'])):
+            testname = idx[f'test{testit + 1}']
+            passes = int(idx['passes'])
+            test_results[name][testname] = []
+            for passit in range(passes):
+                test_results[name][testname].append(
+                    pd.read_csv(args.tests_output_path \
+                            / name \
+                            / f'{testname}_{passit + 1}.csv'))
+
+    index.generate(idx, policy_links)
+
+    for name, link in policy_links.items():
+        fps = policy_fps[name]
+        policy_index.generate(name, link, fps, idx, test_results[name])
+        policy_summary.generate(name, link, fps, idx, test_results[name])
+        for test in test_results[name]:
+            policy_test.generate(name, test, link / test, test_results[name][test], \
+                    args.tests_input_path)
+
+    #for counter in range(int(idx['policies'])):
+    #    policyname = idx[f'policyname{counter + 1}']
+    #filenames, csvs, stopwatch = read_dir(args.input_dir)
+    #create_html(csvs, args.config, filenames, stopwatch)
 
 if __name__ == "__main__":
     main()

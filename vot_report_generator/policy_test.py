@@ -5,13 +5,14 @@ import statistics
 from scipy.signal import savgol_filter
 import math
 import pandas as pd
-from matplotlib import lines as mlines, image, pyplot as plt
+from matplotlib import lines as mlines, image, pyplot as plt, cm
 from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationBbox
 import cv2
+import numpy as np
 
 from generate_images import generate_images
 
-def find_local_extremums(seq, count, binop):
+def find_interval_extremums(seq, count, binop):
     batch_size = len(seq) // count
     res = []
     for batch in range(count):
@@ -33,7 +34,7 @@ def add_extremums_above(ax, vals, input_sequence, binop):
     width, height = map(int, fig.get_size_inches() * fig.dpi)
     position = ax.get_position()
 
-    annotationsHeight = 0.04
+    annotationsHeight = 0.08
     fig.subplots_adjust(bottom=position.y0,
             top=position.y0 + position.height * (1.0
             - annotationsHeight))
@@ -45,7 +46,7 @@ def add_extremums_above(ax, vals, input_sequence, binop):
     spaceSize = 0.07
     spacedImageSize = int(imgWidth * (1.0 + spaceSize))
     nImages = int(width * 0.711) // spacedImageSize
-    extremums = find_local_extremums(vals, nImages, binop)
+    extremums = find_interval_extremums(vals, nImages, binop)
     extr_indexes = [extr[0] for extr in extremums]
 
     for extr in extremums[:-1]:
@@ -79,7 +80,7 @@ def add_images_under(ax, input_sequence):
     imgShape = image.imread(input_sequence[0]).shape
     imgAspectRatio = imgShape[1] / imgShape [0]
     imgWidth = int(imgAspectRatio * imgHeight)
-    spaceSize = 0.09
+    spaceSize = 0.07
     spacedImageSize = int(imgWidth * (1.0 + spaceSize))
     nImages = int(width * 0.711) // spacedImageSize
     for it in range(nImages):
@@ -94,26 +95,29 @@ def ious_combined_graph(test_results, input_sequence):
     ious = pd.concat([test['iou'] for test in test_results],
             axis=1, join='inner')
     mean = ious.mean(axis=1)
-    ax = ious.plot(legend=False, grid=False, title='Accuracy for'
-            + ' every pass and their mean. Images above are local'
-            + ' minimums noted by red asterisks on the graph.'
+    colors = cm.get_cmap('Pastel1')(np.linspace(0.0, 1.0, len(test_results)))
+    ax = ious.plot(legend=False, grid=False, color=colors,
+            title='Accuracy for'
+            + ' every pass and their mean. Images above are'
+            + ' minimums on interval noted by red asterisks on the graph.'
             + ' Images below are frames marked by red vertical'
             + ' lines.')
+
     for line in ax.lines:
-        line.set_color('#C0C0C0')
         line.set_linewidth(1)
-    smoothed = [max(0, x) for x in savgol_filter(mean, 15, 3)]
-    ax.plot(smoothed, color='blue', linewidth=1)
+    #smoothed = [max(0, x) for x in savgol_filter(mean, 15, 3)]
+    smoothed = mean
+    ax.plot(smoothed, color='#0D0080', linewidth=1)
     ax.set_xlabel('Frame number')
     ax.set_ylabel('IoU')
     ax.grid(color='white', lw = 0.75)
-
+    
     fig = ax.get_figure()
 
     add_images_under(ax, input_sequence)
     extr_legend = add_extremums_above(ax, smoothed, input_sequence, min)
 
-    ax.legend(handles=[mlines.Line2D([], [], color='blue',
+    ax.legend(handles=[mlines.Line2D([], [], color='#0D0080',
                           markersize=15, label='Mean (smoothed)'),
                           mlines.Line2D([], [], color='#C0C0C0',
                           markersize=15, label='Raw'),

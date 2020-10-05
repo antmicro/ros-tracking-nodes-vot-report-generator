@@ -15,12 +15,13 @@ def find_local_extremums(seq, count, binop):
     batch_size = len(seq) // count
     res = []
     for batch in range(count):
-        curr_ext = float('inf')
+        curr_ext = float('nan')
         ext_idx = float('nan')
         for it in range(batch_size):
             idx = batch_size * batch + it
             val = seq[idx]
-            if binop(curr_ext, val) == val:
+            if it == 0 \
+                    or binop(curr_ext, val) == val:
                 curr_ext = val
                 ext_idx = idx 
         res.append((ext_idx, curr_ext))
@@ -47,10 +48,10 @@ def add_extremums_above(ax, vals, input_sequence, binop):
     extremums = find_local_extremums(vals, nImages, binop)
     extr_indexes = [extr[0] for extr in extremums]
 
-    for extr in extremums:
+    for extr in extremums[:-1]:
         ax.plot(extr[0], extr[1], '*r', markersize=10)
 
-    for it in range(nImages):
+    for it in range(nImages - 1):
         imgIdx = extr_indexes[it]
         lineIdx = len(input_sequence) // nImages * it
         img = image.imread(input_sequence[imgIdx])

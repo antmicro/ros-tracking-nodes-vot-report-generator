@@ -1,0 +1,22 @@
+<div style="overflow-x:auto;">
+    <table class="pure-table pure-table-bordered">
+        <thead>
+            <tr>
+                <th></th>
+                {% for header in table[(table|list)[0]].keys() %}
+                    <th>{{ header }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for name, vals in table.items() %}
+                <tr>
+                    <th>{{ name }}</th>
+                    {% for val in vals.values() %}
+                    <th>{{ "%.4f"|format(val) }}</th>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

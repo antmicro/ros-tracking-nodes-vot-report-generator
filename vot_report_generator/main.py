@@ -264,31 +264,46 @@ def main():
     policy_links = {}
     policy_fps = {}
     test_results = {}
+    stopwatch_results = {}
     for policyit in range(int(idx['policies'])):
         name = idx[f'policyname{policyit + 1}']
         fps = int(idx[f'policyfps{policyit + 1}'])
         policy_links[name] = Path(name)
         policy_fps[name] = fps
         test_results[name] = {}
+        stopwatch_results[name] = {}
         for testit in range(int(idx['tests'])):
             testname = idx[f'test{testit + 1}']
             passes = int(idx['passes'])
             test_results[name][testname] = []
+            stopwatch_results[name][testname] = []
             for passit in range(passes):
                 test_results[name][testname].append(
                     pd.read_csv(args.tests_output_path \
                             / name \
                             / f'{testname}_{passit + 1}.csv'))
+                with open(args.tests_output_path \
+                        / name \
+                        / f'{testname}_{passit + 1}_stopwatch.csv') \
+                        as f:
+                    cols = {}
+                    for line in f:
+                        l = line[:-1].split(',')
+                        cols[l[0]] = []
+                        for entry in l[1:]:
+                            cols[l[0]].append(float(entry))
+                    stopwatch_results[name][testname].append(cols)
+
 
     index.generate(idx, policy_links)
 
     for name, link in policy_links.items():
         fps = policy_fps[name]
         policy_index.generate(name, link, fps, idx, test_results[name])
-        policy_summary.generate(name, link, fps, idx, test_results[name])
+        policy_summary.generate(name, link, fps, idx, test_results[name], stopwatch_results[name])
         for test in test_results[name]:
             policy_test.generate(name, test, link / test, test_results[name][test], \
-                    args.tests_input_path)
+                    args.tests_input_path, stopwatch_results[name][test])
 
     #for counter in range(int(idx['policies'])):
     #    policyname = idx[f'policyname{counter + 1}']

@@ -10,7 +10,7 @@ from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationB
 import cv2
 import numpy as np
 
-from generate_images import generate_images
+from common import generate_statistics, generate_images
 
 def find_interval_extremums(seq, count, binop):
     batch_size = len(seq) // count
@@ -35,9 +35,18 @@ def add_extremums_above(ax, vals, input_sequence, binop):
     position = ax.get_position()
 
     annotationsHeight = 0.08
-    fig.subplots_adjust(bottom=position.y0,
-            top=position.y0 + position.height * (1.0
-            - annotationsHeight))
+    new_y = position.y1 - position.height * (annotationsHeight + 0.07)
+    ax.set_position([position.x0,
+                    position.y0 ,
+                    position.width,
+                    new_y - position.y0], 'original')
+
+    zero_display = ax.transData.transform_point((0, 0))
+    zero_figure = fig.transFigure.inverted().transform_point(zero_display)
+    
+    x_points = ax.lines[0].get_xdata()
+    max_x_display = ax.transData.transform_point((len(x_points), 0))
+    max_x_figure = fig.transFigure.inverted().transform_point(max_x_display)
 
     imgHeight = int(height * annotationsHeight)
     imgShape = image.imread(input_sequence[0]).shape
@@ -45,7 +54,8 @@ def add_extremums_above(ax, vals, input_sequence, binop):
     imgWidth = int(imgAspectRatio * imgHeight)
     spaceSize = 0.07
     spacedImageSize = int(imgWidth * (1.0 + spaceSize))
-    nImages = int(width * 0.711) // spacedImageSize
+    nImages = int((max_x_figure[0] - zero_figure[0]) * width) // spacedImageSize
+
     extremums = find_interval_extremums(vals, nImages, binop)
     extr_indexes = [extr[0] for extr in extremums]
 
@@ -58,8 +68,11 @@ def add_extremums_above(ax, vals, input_sequence, binop):
         img = image.imread(input_sequence[imgIdx])
         img = cv2.resize(img, dsize=(imgWidth, imgHeight))
         imgPoint = ax.transData.transform_point((lineIdx, 0))
-        ax.get_figure().figimage(img, imgPoint[0],
-                (1.0 - annotationsHeight - 0.06) * height)
+        figPoint = fig.transFigure.inverted().transform_point((imgPoint[0], imgHeight))
+        frac_to_pix = (fig.get_size_inches() * fig.dpi)
+
+        ax.get_figure().figimage(img, figPoint[0] * frac_to_pix[0],
+                height - figPoint[1] * frac_to_pix[1])
 
     return mlines.Line2D([], [], color='red', marker='*',
             markersize=10, label='Local extremum', linestyle='None')
@@ -71,10 +84,18 @@ def add_images_under(ax, input_sequence):
     position = ax.get_position()
 
     annotationsHeight = 0.04
-    fig.subplots_adjust(bottom=position.y0
-    # the constant below takes some of the graph's space to be more compact
-            + position.height * (annotationsHeight - 0.025), 
-    top=position.y0 + position.height)
+    new_y = position.y0 + position.height * (annotationsHeight + 0.08)
+    ax.set_position([position.x0,
+                    new_y ,
+                    position.width,
+                    position.y1 - new_y], 'original')
+
+    zero_display = ax.transData.transform_point((0, 0))
+    zero_figure = fig.transFigure.inverted().transform_point(zero_display)
+    
+    x_points = ax.lines[0].get_xdata()
+    max_x_display = ax.transData.transform_point((len(x_points), 0))
+    max_x_figure = fig.transFigure.inverted().transform_point(max_x_display)
 
     imgHeight = int(height * annotationsHeight)
     imgShape = image.imread(input_sequence[0]).shape
@@ -82,14 +103,19 @@ def add_images_under(ax, input_sequence):
     imgWidth = int(imgAspectRatio * imgHeight)
     spaceSize = 0.07
     spacedImageSize = int(imgWidth * (1.0 + spaceSize))
-    nImages = int(width * 0.711) // spacedImageSize
+
+    nImages = int((max_x_figure[0] - zero_figure[0]) * width) // spacedImageSize
+
     for it in range(nImages):
         imgIdx = len(input_sequence) // nImages * it
-        ax.axvline(x=imgIdx, linewidth=0.25, color='red')
+        ax.axvline(x=imgIdx, linewidth=0.25 + (it % 2 == 0) * 0.20, color='red')
         img = image.imread(input_sequence[imgIdx])
         img = cv2.resize(img, dsize=(imgWidth, imgHeight))
         imgPoint = ax.transData.transform_point((imgIdx, 0))
-        ax.get_figure().figimage(img, imgPoint[0] - imgWidth // 2, 0)
+        figPoint = fig.transFigure.inverted().transform_point((imgPoint[0] - imgWidth // 2, 0))
+        frac_to_pix = (fig.get_size_inches() * fig.dpi)
+        ax.get_figure().figimage(img, figPoint[0] * frac_to_pix[0],
+                figPoint[1] * frac_to_pix[1])
 
 def ious_combined_graph(test_results, input_sequence):
     ious = pd.concat([test['iou'] for test in test_results],
@@ -103,6 +129,9 @@ def ious_combined_graph(test_results, input_sequence):
             + ' Images below are frames marked by red vertical'
             + ' lines.')
 
+    fig = ax.get_figure()
+    fig.subplots_adjust(left=0.0, right=1.0, bottom=0.0, top=1.0)
+
     for line in ax.lines:
         line.set_linewidth(1)
     #smoothed = [max(0, x) for x in savgol_filter(mean, 15, 3)]
@@ -112,23 +141,21 @@ def ious_combined_graph(test_results, input_sequence):
     ax.set_ylabel('IoU')
     ax.grid(color='white', lw = 0.75)
     
-    fig = ax.get_figure()
 
     add_images_under(ax, input_sequence)
     extr_legend = add_extremums_above(ax, smoothed, input_sequence, min)
 
     ax.legend(handles=[mlines.Line2D([], [], color='#0D0080',
-                          markersize=15, label='Mean (smoothed)'),
+                          markersize=15, label='Mean'),
                           mlines.Line2D([], [], color='#C0C0C0',
                           markersize=15, label='Raw'),
                           extr_legend
                           ])
 
-
     return {'ious_combined.png': fig}
 
 
-def generate(name, test, link, test_results, tests_input_path):
+def generate(name, test, link, test_results, tests_input_path, stopwatch_test):
     env = Environment(
         loader=FileSystemLoader(searchpath="template"))
     template = env.get_template("policy_test.html")
@@ -136,6 +163,9 @@ def generate(name, test, link, test_results, tests_input_path):
     input_sequence_path = tests_input_path / test
     imgs = [f for f in input_sequence_path.glob('*') if f.suffix != '.ann']
     seq_paths = {int(p.stem) - 1 : p for p in imgs}
+
+    stopwatch_table = generate_statistics({name : sum([p[name] for p in stopwatch_test], []) for name in stopwatch_test[0]})
+    iou_table = generate_statistics({'iou' : sum([[v for v in dt['iou']] for dt in test_results], [])})
 
     images = {}
     images.update(ious_combined_graph(test_results, seq_paths))
@@ -148,4 +178,6 @@ def generate(name, test, link, test_results, tests_input_path):
             policyname=name,
             testname=test,
             link=link,
-            test_results=test_results))
+            test_results=test_results,
+            stopwatch_table=stopwatch_table,
+            iou_table=iou_table))

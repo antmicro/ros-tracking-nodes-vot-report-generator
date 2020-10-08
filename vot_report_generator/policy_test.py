@@ -10,7 +10,7 @@ from matplotlib.offsetbox import TextArea, DrawingArea, OffsetImage, AnnotationB
 import cv2
 import numpy as np
 
-from common import generate_statistics, generate_images
+from common import generate_statistics, generate_images, timepoints_to_durations, durations_to_fps
 
 def find_interval_extremums(seq, count, binop):
     batch_size = len(seq) // count
@@ -68,7 +68,8 @@ def add_extremums_above(ax, vals, input_sequence, binop):
         img = image.imread(input_sequence[imgIdx])
         img = cv2.resize(img, dsize=(imgWidth, imgHeight))
         imgPoint = ax.transData.transform_point((lineIdx, 0))
-        figPoint = fig.transFigure.inverted().transform_point((imgPoint[0], imgHeight))
+        figPoint = fig.transFigure.inverted().transform_point((imgPoint[0] \
+                + spaceSize * imgWidth // 2, imgHeight))
         frac_to_pix = (fig.get_size_inches() * fig.dpi)
 
         ax.get_figure().figimage(img, figPoint[0] * frac_to_pix[0],
@@ -164,7 +165,7 @@ def generate(name, test, link, test_results, tests_input_path, stopwatch_test):
     imgs = [f for f in input_sequence_path.glob('*') if f.suffix != '.ann']
     seq_paths = {int(p.stem) - 1 : p for p in imgs}
 
-    stopwatch_table = generate_statistics({name : sum([p[name] for p in stopwatch_test], []) for name in stopwatch_test[0]})
+    stopwatch_table = generate_statistics({name : sum([durations_to_fps(timepoints_to_durations(p[name])) for p in stopwatch_test], []) for name in stopwatch_test[0]})
     iou_table = generate_statistics({'iou' : sum([[v for v in dt['iou']] for dt in test_results], [])})
 
     images = {}

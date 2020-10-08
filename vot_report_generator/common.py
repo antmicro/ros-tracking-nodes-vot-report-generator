@@ -18,3 +18,12 @@ def generate_statistics(sequences):
         stats[f'stdev'] = st.stdev(seq)
         table[seqname] = stats
     return table
+
+def timepoints_to_durations(seq):
+    res = []
+    for idx in range(len(seq) // 2):
+        res.append(seq[idx * 2 + 1] - seq[idx * 2])
+    return res
+
+def durations_to_fps(seq):
+    return [1.0 / elem for elem in seq]

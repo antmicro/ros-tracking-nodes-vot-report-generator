@@ -1,5 +1,8 @@
-<div style="overflow-x:auto;">
-    <table class="pure-table pure-table-bordered">
+<div style="overflow-x:auto">
+    <table class="pure-table pure-table-bordered" style="margin-left: auto; margin-right: auto">
+        {% if caption %}
+            <caption>{{ caption }}</caption>
+        {% endif %}
         <thead>
             <tr>
                 <th></th>

@@ -1,19 +1,8 @@
 #!/usr/bin/env python3
-from jinja2 import FileSystemLoader, Environment
-import argparse
 from pathlib import Path
-import csv
-import operator
-import matplotlib.pyplot as plt
-import statistics
-import itertools
-from functools import partialmethod
-from dataclasses import dataclass
-from scipy.signal import savgol_filter
-import math
-from os import listdir
-from os.path import isfile, join
-from collections import Counter, defaultdict
+
+from jinja2 import Environment, FileSystemLoader
+
 
 def generate(idx, policy_links):
     env = Environment(

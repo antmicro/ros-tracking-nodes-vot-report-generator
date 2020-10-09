@@ -1,22 +1,10 @@
 #!/usr/bin/env python3
-from jinja2 import FileSystemLoader, Environment
-import argparse
-from pathlib import Path
-import csv
-import operator
-import matplotlib.pyplot as plt
-import statistics
-import itertools
-from functools import partialmethod
-from dataclasses import dataclass
+from jinja2 import Environment, FileSystemLoader 
 from scipy.signal import savgol_filter
-import math
-from os import listdir
-from os.path import isfile, join
-from collections import Counter, defaultdict
 import pandas as pd
 
 from common import generate_statistics, generate_images
+
 
 def generate(name, link, fps, idx, test_results, stopwatch_results):
     env = Environment(
@@ -31,8 +19,8 @@ def generate(name, link, fps, idx, test_results, stopwatch_results):
     ious_flat = pd.concat(ious, axis=0)
     ious = pd.concat(ious, axis=1)
     images['ious_combined.png'] = ious.plot().get_figure()
-    
-    iou_table = generate_statistics({'iou' : ious_flat})
+
+    iou_table = generate_statistics({'iou': ious_flat})
 
     generate_images(images, 'output' / link / 'images')
     summary_path = 'output' / link / 'summary.html'

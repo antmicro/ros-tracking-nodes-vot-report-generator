@@ -2,7 +2,7 @@
 from jinja2 import Environment, FileSystemLoader
 from scipy.signal import savgol_filter
 import pandas as pd
-from matplotlib import cm, image, lines as mlines
+from matplotlib import cm, image, lines as mlines, pyplot as plt
 import cv2
 import numpy as np
 
@@ -131,6 +131,7 @@ def add_images_under(ax, input_sequence):
 def ious_combined_graph(test_results, input_sequence):
     """generation of graph of ious from all passes
     """
+    plt.figure()
     ious = pd.concat([test['iou'] for test in test_results],
             axis=1, join='inner')
     mean = ious.mean(axis=1)
@@ -143,7 +144,7 @@ def ious_combined_graph(test_results, input_sequence):
             + ' lines.')
 
     fig = ax.get_figure()
-    fig.subplots_adjust(left=0.0, right=1.0, bottom=0.08, top=0.93)
+    fig.subplots_adjust(left=0.03, right=1.0, bottom=0.08, top=0.93)
 
     for line in ax.lines:
         line.set_linewidth(1)
@@ -168,14 +169,15 @@ def ious_combined_graph(test_results, input_sequence):
 
 
 def ious_stdev_graph(test_results, input_sequence):
+    """mean and its standard deviation at each point"""
+    plt.figure()
     ious = pd.concat([test['iou'] for test in test_results],
             axis=1, join='inner')
     ious = ious.transpose()
     ious_mean = ious.mean()
-    ax = ious_mean.plot(legend=False, grid=False,
-            title='a')
+    ax = ious_mean.plot(legend=False, grid=True, title='IoU mean')
     fig = ax.get_figure()
-    fig.subplots_adjust(left=0.0, right=1.0, bottom=0.08, top=0.93)
+    fig.subplots_adjust(left=0.03, right=1.0, bottom=0.08, top=0.93)
 
     return {'ious_stdev.png': fig}
 
@@ -198,7 +200,7 @@ def generate(name, test, link, test_results, tests_input_path, stopwatch_test):
 
     images = {}
     images.update(ious_combined_graph(test_results, seq_paths))
-#    images.update(ious_stdev_graph(test_results, seq_paths))
+    images.update(ious_stdev_graph(test_results, seq_paths))
     generate_images(images, 'output' / link / 'images')
 
     summary_path = 'output' / link / 'index.html'

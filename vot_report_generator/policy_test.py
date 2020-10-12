@@ -112,7 +112,7 @@ def add_images_under(ax, input_sequence):
     spacedImageSize = int(imgWidth * (1.0 + spaceSize))
 
     nImages = int((max_x_figure[0] - zero_figure[0])
-            * width) // spacedImageSize
+            * width) // spacedImageSize // 2 * 2
 
     for it in range(nImages):
         imgIdx = len(input_sequence) // nImages * it
@@ -175,7 +175,8 @@ def ious_stdev_graph(test_results, input_sequence):
             axis=1, join='inner')
     ious = ious.transpose()
     ious_mean = ious.mean()
-    ax = ious_mean.plot(legend=False, grid=True, title='IoU mean')
+    smoothed = pd.DataFrame([max(0, x) for x in savgol_filter(ious_mean, 41, 2)])
+    ax = smoothed.plot(legend=False, grid=True, title='IoU mean')
     fig = ax.get_figure()
     fig.subplots_adjust(left=0.03, right=1.0, bottom=0.08, top=0.93)
 

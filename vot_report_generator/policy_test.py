@@ -13,14 +13,17 @@ from common import generate_statistics, generate_images, \
 def find_interval_extremums(seq, count, binop):
     """find {count} extremums on interval
     on {seq} where ordering is defined by
-    {binop}"""
+    {binop}; if {seq} can't be divided equally
+    {count+1} extremums will be returned"""
     batch_size = len(seq) // count
     res = []
-    for batch in range(count):
+    for batch in range(count + bool(len(seq) % count)):
         curr_ext = float('nan')
         ext_idx = float('nan')
         for it in range(batch_size):
             idx = batch_size * batch + it
+            if idx >= len(seq):
+                break
             val = seq[idx]
             if it == 0 \
                     or binop(curr_ext, val) == val:
@@ -66,7 +69,7 @@ def add_extremums_above(ax, vals, input_sequence, binop):
     for extr in extremums[:-1]:
         ax.plot(extr[0], extr[1], '*r', markersize=10)
 
-    for it in range(nImages - 1):
+    for it in range(nImages):
         imgIdx = extr_indexes[it]
         lineIdx = len(input_sequence) // nImages * it
         img = image.imread(input_sequence[imgIdx])

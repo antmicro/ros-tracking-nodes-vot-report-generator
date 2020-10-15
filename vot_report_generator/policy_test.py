@@ -3,6 +3,7 @@ from jinja2 import Environment, FileSystemLoader
 from scipy.signal import savgol_filter
 import pandas as pd
 from matplotlib import cm, image, lines as mlines, pyplot as plt
+from matplotlib.patches import Patch
 import cv2
 import numpy as np
 
@@ -178,8 +179,36 @@ def ious_stdev_graph(test_results, input_sequence):
             axis=1, join='inner')
     ious = ious.transpose()
     ious_mean = ious.mean()
-    smoothed = pd.DataFrame([max(0, x) for x in savgol_filter(ious_mean, 41, 2)])
-    ax = smoothed.plot(legend=False, grid=True, title='IoU mean')
+    ious_stdev = ious.std()
+
+    smoothed_mean = pd.DataFrame([max(0, x) for x in savgol_filter(ious_mean, 41, 2)])
+    smoothed_stdev = pd.DataFrame([max(0, x) for x in savgol_filter(ious_stdev, 41, 2)])
+    line_smoothed = np.array([x[0] for x in smoothed_mean.to_numpy()])
+    deviation_smoothed = np.array([x[0] for x in smoothed_stdev.to_numpy()]) / 2
+    line = ious_mean.to_numpy()
+    deviation = ious_stdev.to_numpy()
+
+    ax = ious_mean.plot(legend=False, grid=True,
+            title='Mean IoU and standard deviation of'
+            + ' IoU from all passes in each point',
+            linewidth=1.0, color='red', alpha=1.0)
+    ax.fill_between(range(len(line)), line - deviation, line + deviation, color='#8080FF', alpha=0.4)
+
+    smoothed_mean.plot(ax=ax, legend=False, linewidth=2, color='blue', alpha=1.0)
+    ax.fill_between(range(len(line)), line_smoothed - deviation_smoothed,
+            line_smoothed + deviation_smoothed, color='blue', alpha=0.3)
+
+    ax.set_xlabel('Frame number')
+    ax.set_ylabel('IoU')
+
+    ax.legend(handles=[mlines.Line2D([], [], color='blue',
+                          markersize=15, linewidth=3,
+                          label='Smoothed mean'),
+                          mlines.Line2D([], [], color='red',
+                          markersize=15, label='Raw mean'),
+                          Patch(facecolor='#AAAAFF', edgecolor='#AAAAFF', label='Stdev in point'),
+                          Patch(facecolor='#6060FF', label='Smoothed stdev in point')])
+
     fig = ax.get_figure()
     fig.subplots_adjust(left=0.03, right=1.0, bottom=0.08, top=0.93)
 

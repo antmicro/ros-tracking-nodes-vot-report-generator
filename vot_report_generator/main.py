@@ -31,6 +31,7 @@ def main():
 
     plt.style.use('ggplot')
     plt.rcParams['figure.figsize'] = (21, 7)
+    plt.rcParams['figure.max_open_warning'] = 0
 
     policy_links = {}
     policy_fps = {}

@@ -8,25 +8,20 @@ import cv2
 import numpy as np
 
 from common import generate_statistics, generate_images, \
-        timepoints_to_durations, durations_to_fps
+        timepoints_to_durations, durations_to_fps, \
+        duration_dataframe_per_frame
 
 
-def find_interval_extremums(seq, count, binop):
-    """find {count} extremums on interval
-    on {seq} where ordering is defined by
-    {binop}; if {seq} can't be divided equally
-    {count+1} extremums will be returned"""
-    batch_size = len(seq) // count
+def find_interval_extremums(seq, intervals, binop):
+    """find minimums in seq on intervals from intervals
+    using binop to compare"""
     res = []
-    for batch in range(count + bool(len(seq) % count)):
+    for j in range(len(intervals) - 1):
         curr_ext = float('nan')
         ext_idx = float('nan')
-        for it in range(batch_size):
-            idx = batch_size * batch + it
-            if idx >= len(seq):
-                break
+        for idx in range(intervals[j], intervals[j + 1]):
             val = seq[idx]
-            if it == 0 \
+            if idx == intervals[j] \
                     or binop(curr_ext, val) == val:
                 curr_ext = val
                 ext_idx = idx
@@ -64,15 +59,18 @@ def add_extremums_above(ax, vals, input_sequence, binop):
     nImages = int((max_x_figure[0] - zero_figure[0])
             * width) // spacedImageSize
 
-    extremums = find_interval_extremums(vals, nImages, binop)
+    indexes = [len(input_sequence) * it // nImages for it in range(nImages)]
+    indexes.append(len(input_sequence) - 1)
+    extremums = find_interval_extremums(vals, indexes, binop)
     extr_indexes = [extr[0] for extr in extremums]
 
-    for extr in extremums[:-1]:
+    for extr in extremums:
         ax.plot(extr[0], extr[1], '*r', markersize=10)
 
     for it in range(nImages):
         imgIdx = extr_indexes[it]
-        lineIdx = len(input_sequence) // nImages * it
+        lineIdx = indexes[it]
+        indexes.append(lineIdx)
         img = image.imread(input_sequence[imgIdx])
         img = cv2.resize(img, dsize=(imgWidth, imgHeight))
         imgPoint = ax.transData.transform_point((lineIdx, 0))
@@ -118,8 +116,10 @@ def add_images_under(ax, input_sequence):
     nImages = int((max_x_figure[0] - zero_figure[0])
             * width) // spacedImageSize // 2 * 2
 
-    for it in range(nImages):
-        imgIdx = len(input_sequence) // nImages * it
+    for it in range(nImages + 1):
+        imgIdx = len(input_sequence) * it // nImages
+        if it == nImages:
+            imgIdx = len(input_sequence) - 1
         ax.axvline(x=imgIdx, linewidth=0.25
                 + (it % 2 == 0) * 0.20, color='red')
         img = image.imread(input_sequence[imgIdx])
@@ -130,6 +130,7 @@ def add_images_under(ax, input_sequence):
         frac_to_pix = (fig.get_size_inches() * fig.dpi)
         ax.get_figure().figimage(img, figPoint[0] * frac_to_pix[0],
                 figPoint[1] * frac_to_pix[1])
+
 
 
 def ious_combined_graph(test_results, input_sequence):
@@ -214,6 +215,14 @@ def ious_stdev_graph(test_results, input_sequence):
 
     return {'ious_stdev.png': fig}
 
+def duration_frame_graph(durations):
+    """speed of algorithms per frame"""
+    plt.figure()
+    ax = durations.plot()
+    fig = ax.get_figure()
+
+    return {'duration_frame.png': fig}
+
 
 def generate(name, test, link, test_results, tests_input_path, stopwatch_test):
     env = Environment(
@@ -234,6 +243,8 @@ def generate(name, test, link, test_results, tests_input_path, stopwatch_test):
     images = {}
     images.update(ious_combined_graph(test_results, seq_paths))
     images.update(ious_stdev_graph(test_results, seq_paths))
+    images.update(duration_frame_graph(duration_dataframe_per_frame(test_results,
+        stopwatch_test)))
     generate_images(images, 'output' / link / 'images')
 
     summary_path = 'output' / link / 'index.html'

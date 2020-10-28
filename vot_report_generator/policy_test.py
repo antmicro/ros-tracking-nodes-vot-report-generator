@@ -217,9 +217,16 @@ def ious_stdev_graph(test_results, input_sequence):
 
 def duration_frame_graph(durations):
     """speed of algorithms per frame"""
+    if len(durations) == 0:
+        return {'duration_frame.png': None}
     plt.figure()
-    ax = durations.plot()
+    ax = durations.plot(linewidth=1)
+
+    ax.set_xlabel('Frame number')
+    ax.set_ylabel('Inference time in seconds')
+
     fig = ax.get_figure()
+    fig.subplots_adjust(left=0.05, right=1.0, bottom=0.08, top=0.93)
 
     return {'duration_frame.png': fig}
 
@@ -245,6 +252,7 @@ def generate(name, test, link, test_results, tests_input_path, stopwatch_test):
     images.update(ious_stdev_graph(test_results, seq_paths))
     images.update(duration_frame_graph(duration_dataframe_per_frame(test_results,
         stopwatch_test)))
+    images = {name: im for name, im in images.items() if im is not None}
     generate_images(images, 'output' / link / 'images')
 
     summary_path = 'output' / link / 'index.html'

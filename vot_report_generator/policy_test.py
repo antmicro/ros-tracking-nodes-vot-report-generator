@@ -222,6 +222,8 @@ def duration_frame_graph(durations):
     plt.figure()
     ax = durations.plot(linewidth=1)
 
+    ax.set_title('Execution time of selected algorithms (or parts of them) and total policy '
+            'execution time')
     ax.set_xlabel('Frame number')
     ax.set_ylabel('Inference time in seconds')
 

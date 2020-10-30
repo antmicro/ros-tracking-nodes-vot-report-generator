@@ -1,5 +1,6 @@
 import statistics as st
 import pandas as pd
+from collections import defaultdict
 
 
 def generate_images(images, link):
@@ -37,8 +38,8 @@ def durations_to_fps(seq):
 def duration_dataframe_per_frame(tester, stopwatch):
     """takes stopwatch and tester output, returns fps data"""
     l = len(tester[0]['time'])
-    table = { name: [0.0] * l for name, seq in stopwatch[0].items() if len(seq) > 0}
-    hits = { name: [0] * l for name, seq in stopwatch[0].items() if len(seq) > 0}
+    table = defaultdict(lambda: [0.0] * l)
+    hits = defaultdict(lambda: [0] * l)
     for it, ps in enumerate(stopwatch):
         time = tester[it]['time']
         for name, seq in ps.items():

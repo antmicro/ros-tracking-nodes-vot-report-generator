@@ -7,9 +7,9 @@ from matplotlib.patches import Patch
 import cv2
 import numpy as np
 
-from common import generate_statistics, generate_images, \
-        timepoints_to_durations, durations_to_fps, \
-        duration_dataframe_per_frame
+from common import generate_statistics, generate_images
+from common import timepoints_to_durations, durations_to_fps
+from common import duration_dataframe_per_frame
 
 
 def find_interval_extremums(seq, intervals, binop):

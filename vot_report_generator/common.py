@@ -37,15 +37,15 @@ def durations_to_fps(seq):
 
 def duration_dataframe_per_frame(tester, stopwatch):
     """takes stopwatch and tester output, returns fps data"""
-    l = len(tester[0]['time'])
-    table = defaultdict(lambda: [0.0] * l)
-    hits = defaultdict(lambda: [0] * l)
+    ln = len(tester[0]['time'])
+    table = defaultdict(lambda: [0.0] * ln)
+    hits = defaultdict(lambda: [0] * ln)
     for it, ps in enumerate(stopwatch):
         time = tester[it]['time']
         for name, seq in ps.items():
             j = 0
             for idx in range(len(seq) // 2):
-                while j < l and time[j] < seq[idx * 2 + 1]:
+                while j < ln and time[j] < seq[idx * 2 + 1]:
                     j += 1
                 if j == len(time):
                     break
@@ -53,7 +53,7 @@ def duration_dataframe_per_frame(tester, stopwatch):
                         seq[idx * 2 + 1] - seq[idx * 2]
                 hits[name][j] += 1
     for name in table:
-        for idx in range(l):
+        for idx in range(ln):
             if hits[name][idx]:
                 table[name][idx] /= hits[name][idx]
             else:

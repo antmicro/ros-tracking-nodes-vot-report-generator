@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-from jinja2 import Environment, FileSystemLoader 
+from jinja2 import Environment, FileSystemLoader
 from matplotlib import pyplot as plt
 import pandas as pd
 from scipy.signal import savgol_filter
 import statistics
 
 from common import generate_statistics, generate_images
+
 
 def iou_bar_graph(ious):
     plt.figure()
@@ -17,10 +18,11 @@ def iou_bar_graph(ious):
     fig = ax.get_figure()
     return fig
 
+
 def iou_size_graph(test_results):
     plt.figure()
     dfs = sum([[p for p in t] for t in test_results.values()],
-    [])
+            [])
     df = pd.concat(dfs)
     df['area'] = [x['realWidth'] * x['realHeight'] for index, x
             in df.iterrows()]
@@ -36,6 +38,7 @@ def iou_size_graph(test_results):
     ax.set_title('IoU as a function of ground thruth bbox size')
     fig = ax.get_figure()
     return fig
+
 
 def generate(name, link, fps, idx, test_results, stopwatch_results):
     env = Environment(

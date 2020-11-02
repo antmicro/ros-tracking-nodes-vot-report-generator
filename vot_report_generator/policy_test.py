@@ -132,7 +132,6 @@ def add_images_under(ax, input_sequence):
                 figPoint[1] * frac_to_pix[1])
 
 
-
 def ious_combined_graph(test_results, input_sequence):
     """generation of graph of ious from all passes
     """
@@ -182,10 +181,13 @@ def ious_stdev_graph(test_results, input_sequence):
     ious_mean = ious.mean()
     ious_stdev = ious.std()
 
-    smoothed_mean = pd.DataFrame([max(0, x) for x in savgol_filter(ious_mean, 41, 2)])
-    smoothed_stdev = pd.DataFrame([max(0, x) for x in savgol_filter(ious_stdev, 41, 2)])
+    smoothed_mean = pd.DataFrame(
+            [max(0, x) for x in savgol_filter(ious_mean, 41, 2)])
+    smoothed_stdev = pd.DataFrame(
+            [max(0, x) for x in savgol_filter(ious_stdev, 41, 2)])
     line_smoothed = np.array([x[0] for x in smoothed_mean.to_numpy()])
-    deviation_smoothed = np.array([x[0] for x in smoothed_stdev.to_numpy()]) / 2
+    deviation_smoothed = np.array(
+            [x[0] for x in smoothed_stdev.to_numpy()]) / 2
     line = ious_mean.to_numpy()
     deviation = ious_stdev.to_numpy()
 
@@ -193,9 +195,11 @@ def ious_stdev_graph(test_results, input_sequence):
             title='Mean IoU and standard deviation of'
             + ' IoU from all passes in each point',
             linewidth=1.0, color='red', alpha=1.0)
-    ax.fill_between(range(len(line)), line - deviation, line + deviation, color='#8080FF', alpha=0.4)
+    ax.fill_between(range(len(line)), line - deviation, line + deviation,
+            color='#8080FF', alpha=0.4)
 
-    smoothed_mean.plot(ax=ax, legend=False, linewidth=2, color='blue', alpha=1.0)
+    smoothed_mean.plot(ax=ax, legend=False, linewidth=2,
+            color='blue', alpha=1.0)
     ax.fill_between(range(len(line)), line_smoothed - deviation_smoothed,
             line_smoothed + deviation_smoothed, color='blue', alpha=0.3)
 
@@ -207,13 +211,16 @@ def ious_stdev_graph(test_results, input_sequence):
                           label='Smoothed mean'),
                           mlines.Line2D([], [], color='red',
                           markersize=15, label='Raw mean'),
-                          Patch(facecolor='#AAAAFF', edgecolor='#AAAAFF', label='Stdev in point'),
-                          Patch(facecolor='#6060FF', label='Smoothed stdev in point')])
+                          Patch(facecolor='#AAAAFF', edgecolor='#AAAAFF',
+                              label='Stdev in point'),
+                          Patch(facecolor='#6060FF',
+                              label='Smoothed stdev in point')])
 
     fig = ax.get_figure()
     fig.subplots_adjust(left=0.03, right=1.0, bottom=0.08, top=0.93)
 
     return {'ious_stdev.png': fig}
+
 
 def duration_frame_graph(durations):
     """speed of algorithms per frame"""
@@ -222,7 +229,8 @@ def duration_frame_graph(durations):
     plt.figure()
     ax = durations.plot(linewidth=1)
 
-    ax.set_title('Execution time of selected algorithms (or parts of them) and total policy '
+    ax.set_title('Execution time of selected algorithms'
+            ' (or parts of them) and total policy '
             'execution time')
     ax.set_xlabel('Frame number')
     ax.set_ylabel('Inference time in seconds')
@@ -243,17 +251,17 @@ def generate(name, test, link, test_results, tests_input_path, stopwatch_test):
     seq_paths = {int(p.stem) - 1: p for p in imgs}
 
     stopwatch_table = generate_statistics(
-            {name: sum([durations_to_fps(timepoints_to_durations(p[name])) \
+            {name: sum([durations_to_fps(timepoints_to_durations(p[name]))
                     for p in stopwatch_test],
                     []) for name in stopwatch_test[0]})
-    iou_table = generate_statistics({'iou': sum([[v for v in dt['iou']] \
+    iou_table = generate_statistics({'iou': sum([[v for v in dt['iou']]
             for dt in test_results], [])})
 
     images = {}
     images.update(ious_combined_graph(test_results, seq_paths))
     images.update(ious_stdev_graph(test_results, seq_paths))
-    images.update(duration_frame_graph(duration_dataframe_per_frame(test_results,
-        stopwatch_test)))
+    images.update(duration_frame_graph(duration_dataframe_per_frame(
+        test_results, stopwatch_test)))
     images = {name: im for name, im in images.items() if im is not None}
     generate_images(images, 'output' / link / 'images')
 

@@ -60,10 +60,10 @@ def main():
                         as f:
                     cols = {}
                     for line in f:
-                        l = line[:-1].split(',')
-                        cols[l[0]] = []
-                        for entry in l[1:]:
-                            cols[l[0]].append(float(entry))
+                        li = line[:-1].split(',')
+                        cols[li[0]] = []
+                        for entry in li[1:]:
+                            cols[li[0]].append(float(entry))
                     stopwatch_results[name][testname].append(cols)
 
     index.generate(idx, policy_links)

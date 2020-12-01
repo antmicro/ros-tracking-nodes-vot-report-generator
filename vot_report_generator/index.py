@@ -3,10 +3,9 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 
-
 def generate(idx, policy_links):
     env = Environment(
-        loader=FileSystemLoader(searchpath="template"))
+        loader=FileSystemLoader(searchpath="templates"))
     template = env.get_template("index.html")
     Path('output').mkdir(exist_ok=True)
     with open("output/index.html", 'w') as f:

@@ -42,7 +42,7 @@ def iou_size_graph(test_results):
 
 def generate(name, link, fps, idx, test_results, stopwatch_results):
     env = Environment(
-        loader=FileSystemLoader(searchpath="template"))
+        loader=FileSystemLoader(searchpath="templates"))
     template = env.get_template("policy_summary.html")
     images = {}
 

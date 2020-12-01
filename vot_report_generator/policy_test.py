@@ -107,6 +107,8 @@ def add_images_under(ax, input_sequence):
     max_x_figure = fig.transFigure.inverted().transform_point(max_x_display)
 
     imgHeight = int(height * annotationsHeight)
+    if len(input_sequence) == 0:
+        raise RuntimeError(f"Input sequence did not load correctly")
     imgShape = image.imread(input_sequence[0]).shape
     imgAspectRatio = imgShape[1] / imgShape[0]
     imgWidth = int(imgAspectRatio * imgHeight)
@@ -243,11 +245,13 @@ def duration_frame_graph(durations):
 
 def generate(name, test, link, test_results, tests_input_path, stopwatch_test):
     env = Environment(
-        loader=FileSystemLoader(searchpath="template"))
+        loader=FileSystemLoader(searchpath="templates"))
     template = env.get_template("policy_test.html")
 
     input_sequence_path = tests_input_path / test
     imgs = [f for f in input_sequence_path.glob('*') if f.suffix != '.ann']
+    if len(imgs) == 0:
+        raise RuntimeError(f"No frames found in {input_sequence_path}")
     seq_paths = {int(p.stem) - 1: p for p in imgs}
 
     stopwatch_table = generate_statistics(

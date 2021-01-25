@@ -9,6 +9,8 @@ from common import generate_statistics, generate_images
 
 
 def iou_bar_graph(ious):
+    """Take mean of IoU measurements between
+    different tests and draw a bar graph."""
     plt.figure()
     ax = ious.plot.bar()
     ax.set_xticklabels(ax.get_xticklabels(), rotation=0)
@@ -20,6 +22,7 @@ def iou_bar_graph(ious):
 
 
 def iou_size_graph(test_results):
+    """Take raw tests results and draw IoU vs bbox size graph."""
     plt.figure()
     dfs = sum([[p for p in t] for t in test_results.values()],
               [])

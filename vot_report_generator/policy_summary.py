@@ -22,10 +22,10 @@ def iou_bar_graph(ious):
 def iou_size_graph(test_results):
     plt.figure()
     dfs = sum([[p for p in t] for t in test_results.values()],
-            [])
+              [])
     df = pd.concat(dfs)
     df['area'] = [x['realWidth'] * x['realHeight'] for index, x
-            in df.iterrows()]
+                  in df.iterrows()]
     grouped = df.groupby('area').aggregate(statistics.mean)
     smoothed = [max(0, x) for x in savgol_filter(grouped['iou'], 201, 2)]
     grouped = grouped.assign(smoothed=smoothed)

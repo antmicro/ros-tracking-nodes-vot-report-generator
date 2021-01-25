@@ -3,6 +3,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 
+
 def generate(idx, policy_links):
     env = Environment(
         loader=FileSystemLoader(searchpath="templates"))

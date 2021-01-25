@@ -50,7 +50,7 @@ def duration_dataframe_per_frame(tester, stopwatch):
                 if j == len(time):
                     break
                 table[name][j] += \
-                        seq[idx * 2 + 1] - seq[idx * 2]
+                    seq[idx * 2 + 1] - seq[idx * 2]
                 hits[name][j] += 1
     for name in table:
         for idx in range(ln):

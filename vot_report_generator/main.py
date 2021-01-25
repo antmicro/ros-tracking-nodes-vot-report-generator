@@ -52,11 +52,11 @@ def main():
             for passit in range(passes):
                 test_results[name][testname].append(
                     pd.read_csv(args.tests_output_path
-                            / name
-                            / f'{testname}_{passit + 1}.csv'))
+                                / name
+                                / f'{testname}_{passit + 1}.csv'))
                 with open(args.tests_output_path
-                        / name
-                        / f'{testname}_{passit + 1}_stopwatch.csv') \
+                          / name
+                          / f'{testname}_{passit + 1}_stopwatch.csv') \
                         as f:
                     cols = {}
                     for line in f:
@@ -72,11 +72,12 @@ def main():
         fps = policy_fps[name]
         policy_index.generate(name, link, fps, idx, test_results[name])
         policy_summary.generate(name, link, fps, idx, test_results[name],
-                stopwatch_results[name])
+                                stopwatch_results[name])
         for test in test_results[name]:
             policy_test.generate(name, test, link / test,
-                    test_results[name][test], args.tests_input_path,
-                    stopwatch_results[name][test])
+                                 test_results[name][test],
+                                 args.tests_input_path,
+                                 stopwatch_results[name][test])
 
 
 if __name__ == "__main__":

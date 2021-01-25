@@ -39,9 +39,9 @@ def add_extremums_above(ax, vals, input_sequence, binop):
     annotationsHeight = 0.08
     new_y = position.y1 - position.height * (annotationsHeight)
     ax.set_position([position.x0,
-                    position.y0,
-                    position.width,
-                    new_y - position.y0], 'original')
+                     position.y0,
+                     position.width,
+                     new_y - position.y0], 'original')
 
     zero_display = ax.transData.transform_point((0, 0))
     zero_figure = fig.transFigure.inverted().transform_point(zero_display)
@@ -57,7 +57,7 @@ def add_extremums_above(ax, vals, input_sequence, binop):
     spaceSize = 0.07
     spacedImageSize = int(imgWidth * (1.0 + spaceSize))
     nImages = int((max_x_figure[0] - zero_figure[0])
-            * width) // spacedImageSize
+                  * width) // spacedImageSize
 
     indexes = [len(input_sequence) * it // nImages for it in range(nImages)]
     indexes.append(len(input_sequence) - 1)
@@ -74,15 +74,17 @@ def add_extremums_above(ax, vals, input_sequence, binop):
         img = image.imread(input_sequence[imgIdx])
         img = cv2.resize(img, dsize=(imgWidth, imgHeight))
         imgPoint = ax.transData.transform_point((lineIdx, 0))
-        figPoint = fig.transFigure.inverted().transform_point((imgPoint[0]
-                + spaceSize * imgWidth // 2, imgHeight))
+        figPoint = fig.transFigure.inverted() \
+            .transform_point((imgPoint[0] + spaceSize * imgWidth // 2,
+                              imgHeight))
         frac_to_pix = (fig.get_size_inches() * fig.dpi)
 
         ax.get_figure().figimage(img, figPoint[0] * frac_to_pix[0],
-                height - figPoint[1] * frac_to_pix[1])
+                                 height - figPoint[1] * frac_to_pix[1])
 
     return mlines.Line2D([], [], color='red', marker='*',
-            markersize=10, label='Local extremum', linestyle='None')
+                         markersize=10, label='Local extremum',
+                         linestyle='None')
 
 
 def add_images_under(ax, input_sequence):
@@ -95,9 +97,9 @@ def add_images_under(ax, input_sequence):
     annotationsHeight = 0.04
     new_y = position.y0 + position.height * (annotationsHeight)
     ax.set_position([position.x0,
-                    new_y,
-                    position.width,
-                    position.y1 - new_y], 'original')
+                     new_y,
+                     position.width,
+                     position.y1 - new_y], 'original')
 
     zero_display = ax.transData.transform_point((0, 0))
     zero_figure = fig.transFigure.inverted().transform_point(zero_display)
@@ -116,22 +118,22 @@ def add_images_under(ax, input_sequence):
     spacedImageSize = int(imgWidth * (1.0 + spaceSize))
 
     nImages = int((max_x_figure[0] - zero_figure[0])
-            * width) // spacedImageSize // 2 * 2
+                  * width) // spacedImageSize // 2 * 2
 
     for it in range(nImages + 1):
         imgIdx = len(input_sequence) * it // nImages
         if it == nImages:
             imgIdx = len(input_sequence) - 1
         ax.axvline(x=imgIdx, linewidth=0.25
-                + (it % 2 == 0) * 0.20, color='red')
+                   + (it % 2 == 0) * 0.20, color='red')
         img = image.imread(input_sequence[imgIdx])
         img = cv2.resize(img, dsize=(imgWidth, imgHeight))
         imgPoint = ax.transData.transform_point((imgIdx, 0))
         figPoint = fig.transFigure.inverted().transform_point(
-                (imgPoint[0] - imgWidth // 2, 0))
+            (imgPoint[0] - imgWidth // 2, 0))
         frac_to_pix = (fig.get_size_inches() * fig.dpi)
         ax.get_figure().figimage(img, figPoint[0] * frac_to_pix[0],
-                figPoint[1] * frac_to_pix[1])
+                                 figPoint[1] * frac_to_pix[1])
 
 
 def ious_combined_graph(test_results, input_sequence):
@@ -139,15 +141,15 @@ def ious_combined_graph(test_results, input_sequence):
     """
     plt.figure()
     ious = pd.concat([test['iou'] for test in test_results],
-            axis=1, join='inner')
+                     axis=1, join='inner')
     mean = ious.mean(axis=1)
     colors = cm.get_cmap('Pastel1')(np.linspace(0.0, 1.0, len(test_results)))
     ax = ious.plot(legend=False, grid=False, color=colors,
-            title='Accuracy for'
-            + ' every pass and their mean. Images above are'
-            + ' minimums on interval noted by red asterisks on the graph.'
-            + ' Images below are frames marked by red vertical'
-            + ' lines.')
+                   title='Accuracy for'
+                   ' every pass and their mean. Images above are'
+                   ' minimums on interval noted by red asterisks on the graph.'
+                   ' Images below are frames marked by red vertical'
+                   ' lines.')
 
     fig = ax.get_figure()
     fig.subplots_adjust(left=0.03, right=1.0, bottom=0.08, top=0.93)
@@ -165,11 +167,11 @@ def ious_combined_graph(test_results, input_sequence):
     extr_legend = add_extremums_above(ax, smoothed, input_sequence, min)
 
     ax.legend(handles=[mlines.Line2D([], [], color='#0D0080',
-                          markersize=15, label='Mean'),
-                          mlines.Line2D([], [], color='#C0C0C0',
-                          markersize=15, label='Raw'),
-                          extr_legend
-                          ])
+                                     markersize=15, label='Mean'),
+                       mlines.Line2D([], [], color='#C0C0C0',
+                                     markersize=15, label='Raw'),
+                       extr_legend
+                       ])
 
     return {'ious_combined.png': fig}
 
@@ -178,45 +180,46 @@ def ious_stdev_graph(test_results, input_sequence):
     """mean and its standard deviation at each point"""
     plt.figure()
     ious = pd.concat([test['iou'] for test in test_results],
-            axis=1, join='inner')
+                     axis=1, join='inner')
     ious = ious.transpose()
     ious_mean = ious.mean()
     ious_stdev = ious.std()
 
     smoothed_mean = pd.DataFrame(
-            [max(0, x) for x in savgol_filter(ious_mean, 41, 2)])
+        [max(0, x) for x in savgol_filter(ious_mean, 41, 2)])
     smoothed_stdev = pd.DataFrame(
-            [max(0, x) for x in savgol_filter(ious_stdev, 41, 2)])
+        [max(0, x) for x in savgol_filter(ious_stdev, 41, 2)])
     line_smoothed = np.array([x[0] for x in smoothed_mean.to_numpy()])
     deviation_smoothed = np.array(
-            [x[0] for x in smoothed_stdev.to_numpy()]) / 2
+        [x[0] for x in smoothed_stdev.to_numpy()]) / 2
     line = ious_mean.to_numpy()
     deviation = ious_stdev.to_numpy()
 
     ax = ious_mean.plot(legend=False, grid=True,
-            title='Mean IoU and standard deviation of'
-            + ' IoU from all passes in each point',
-            linewidth=1.0, color='red', alpha=1.0)
+                        title='Mean IoU and standard deviation of'
+                        + ' IoU from all passes in each point',
+                        linewidth=1.0, color='red', alpha=1.0)
     ax.fill_between(range(len(line)), line - deviation, line + deviation,
-            color='#8080FF', alpha=0.4)
+                    color='#8080FF', alpha=0.4)
 
     smoothed_mean.plot(ax=ax, legend=False, linewidth=2,
-            color='blue', alpha=1.0)
+                       color='blue', alpha=1.0)
     ax.fill_between(range(len(line)), line_smoothed - deviation_smoothed,
-            line_smoothed + deviation_smoothed, color='blue', alpha=0.3)
+                    line_smoothed + deviation_smoothed, color='blue',
+                    alpha=0.3)
 
     ax.set_xlabel('Frame number')
     ax.set_ylabel('IoU')
 
     ax.legend(handles=[mlines.Line2D([], [], color='blue',
-                          markersize=15, linewidth=3,
-                          label='Smoothed mean'),
-                          mlines.Line2D([], [], color='red',
-                          markersize=15, label='Raw mean'),
-                          Patch(facecolor='#AAAAFF', edgecolor='#AAAAFF',
-                              label='Stdev in point'),
-                          Patch(facecolor='#6060FF',
-                              label='Smoothed stdev in point')])
+                                     markersize=15, linewidth=3,
+                                     label='Smoothed mean'),
+                       mlines.Line2D([], [], color='red',
+                                     markersize=15, label='Raw mean'),
+                       Patch(facecolor='#AAAAFF', edgecolor='#AAAAFF',
+                             label='Stdev in point'),
+                       Patch(facecolor='#6060FF',
+                             label='Smoothed stdev in point')])
 
     fig = ax.get_figure()
     fig.subplots_adjust(left=0.03, right=1.0, bottom=0.08, top=0.93)
@@ -232,8 +235,8 @@ def duration_frame_graph(durations):
     ax = durations.plot(linewidth=1)
 
     ax.set_title('Execution time of selected algorithms'
-            ' (or parts of them) and total policy '
-            'execution time')
+                 ' (or parts of them) and total policy '
+                 'execution time')
     ax.set_xlabel('Frame number')
     ax.set_ylabel('Inference time in seconds')
 
@@ -255,11 +258,11 @@ def generate(name, test, link, test_results, tests_input_path, stopwatch_test):
     seq_paths = {int(p.stem) - 1: p for p in imgs}
 
     stopwatch_table = generate_statistics(
-            {name: sum([durations_to_fps(timepoints_to_durations(p[name]))
+        {name: sum([durations_to_fps(timepoints_to_durations(p[name]))
                     for p in stopwatch_test],
-                    []) for name in stopwatch_test[0]})
+                   []) for name in stopwatch_test[0]})
     iou_table = generate_statistics({'iou': sum([[v for v in dt['iou']]
-            for dt in test_results], [])})
+                                                 for dt in test_results], [])})
 
     images = {}
     images.update(ious_combined_graph(test_results, seq_paths))

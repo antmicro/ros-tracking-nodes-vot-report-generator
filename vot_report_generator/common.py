@@ -32,7 +32,7 @@ def timepoints_to_durations(seq):
 
 
 def durations_to_fps(seq):
-    return [1.0 / elem for elem in seq]
+    return [1.0 / (elem + 1e-6) for elem in seq] # add a microsecond to prevent division by zero
 
 
 def duration_dataframe_per_frame(tester, stopwatch):

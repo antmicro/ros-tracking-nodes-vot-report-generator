@@ -1,5 +1,7 @@
 # Video Object Tracking report generator
 
+Copyright (c) 2020-2021 [Antmicro](https://www.antmicro.com)
+
 *Check how this repository can be used in* [ros-tracking-policy-examples repository](https://github.com/antmicro/ros-tracking-nodes-policy-examples).
 
 A python tool for generating reports regarding detection and tracking of a single object in video sequences.

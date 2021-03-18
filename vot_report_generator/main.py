@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-import index
-import policy_index
-import policy_summary
-import policy_test
+import vot_report_generator.index as index
+import vot_report_generator.policy_index as  policy_index
+import vot_report_generator.policy_summary as  policy_summary
+import vot_report_generator.policy_test as  policy_test
 
 import argparse
 from pathlib import Path

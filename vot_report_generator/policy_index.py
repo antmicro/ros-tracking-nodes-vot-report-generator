@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, PackageLoader
 
 
 def generate(name, link, fps, idx, test_results):
     env = Environment(
-        loader=FileSystemLoader(searchpath="templates"))
+        loader=PackageLoader("vot_report_generator", "templates"))
     template = env.get_template("policy_index.html")
     index_path = 'output' / link / 'index.html'
     index_path.parent.mkdir(parents=True, exist_ok=True)

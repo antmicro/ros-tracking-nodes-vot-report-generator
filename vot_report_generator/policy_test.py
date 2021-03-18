@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, PackageLoader
 from scipy.signal import savgol_filter
 import pandas as pd
 from matplotlib import cm, image, lines as mlines, pyplot as plt
@@ -7,9 +7,9 @@ from matplotlib.patches import Patch
 import cv2
 import numpy as np
 
-from common import generate_statistics, generate_images
-from common import timepoints_to_durations, durations_to_fps
-from common import duration_dataframe_per_frame
+from vot_report_generator.common import generate_statistics, generate_images
+from vot_report_generator.common import timepoints_to_durations, durations_to_fps
+from vot_report_generator.common import duration_dataframe_per_frame
 
 
 def find_interval_extremums(seq, intervals, binop):
@@ -248,7 +248,7 @@ def duration_frame_graph(durations):
 
 def generate(name, test, link, test_results, tests_input_path, stopwatch_test):
     env = Environment(
-        loader=FileSystemLoader(searchpath="templates"))
+        loader=PackageLoader("vot_report_generator", "templates"))
     template = env.get_template("policy_test.html")
 
     input_sequence_path = tests_input_path / test

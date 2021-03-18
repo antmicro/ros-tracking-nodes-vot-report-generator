@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, PackageLoader
 from matplotlib import pyplot as plt
 import pandas as pd
 from scipy.signal import savgol_filter
 import statistics
 
-from common import generate_statistics, generate_images
+from vot_report_generator.common import generate_statistics, generate_images
 
 
 def iou_bar_graph(ious):
@@ -45,7 +45,7 @@ def iou_size_graph(test_results):
 
 def generate(name, link, fps, idx, test_results, stopwatch_results):
     env = Environment(
-        loader=FileSystemLoader(searchpath="templates"))
+        loader=PackageLoader("vot_report_generator", "templates"))
     template = env.get_template("policy_summary.html")
     images = {}
 

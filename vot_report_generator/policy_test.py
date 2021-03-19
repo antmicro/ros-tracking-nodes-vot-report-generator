@@ -246,7 +246,14 @@ def duration_frame_graph(durations):
     return {'duration_frame.png': fig}
 
 
-def generate(name, test, link, test_results, tests_input_path, stopwatch_test):
+def generate(
+        name,
+        test,
+        link,
+        test_results,
+        tests_input_path,
+        stopwatch_test,
+        outdir):
     env = Environment(
         loader=PackageLoader("vot_report_generator", "templates"))
     template = env.get_template("policy_test.html")
@@ -270,9 +277,9 @@ def generate(name, test, link, test_results, tests_input_path, stopwatch_test):
     images.update(duration_frame_graph(duration_dataframe_per_frame(
         test_results, stopwatch_test)))
     images = {name: im for name, im in images.items() if im is not None}
-    generate_images(images, 'output' / link / 'images')
+    generate_images(images, outdir / link / 'images')
 
-    summary_path = 'output' / link / 'index.html'
+    summary_path = outdir / link / 'index.html'
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     with open(summary_path, 'w') as f:
         f.write(template.render(

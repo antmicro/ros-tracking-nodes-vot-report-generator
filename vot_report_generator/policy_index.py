@@ -2,11 +2,11 @@
 from jinja2 import Environment, PackageLoader
 
 
-def generate(name, link, fps, idx, test_results):
+def generate(name, link, fps, idx, test_results, outdir):
     env = Environment(
         loader=PackageLoader("vot_report_generator", "templates"))
     template = env.get_template("policy_index.html")
-    index_path = 'output' / link / 'index.html'
+    index_path = outdir / link / 'index.html'
     index_path.parent.mkdir(parents=True, exist_ok=True)
     with open(index_path, 'w') as f:
         f.write(template.render(

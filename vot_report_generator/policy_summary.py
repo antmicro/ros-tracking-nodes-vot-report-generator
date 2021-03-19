@@ -43,7 +43,7 @@ def iou_size_graph(test_results):
     return fig
 
 
-def generate(name, link, fps, idx, test_results, stopwatch_results):
+def generate(name, link, fps, idx, test_results, stopwatch_results, outdir):
     env = Environment(
         loader=PackageLoader("vot_report_generator", "templates"))
     template = env.get_template("policy_summary.html")
@@ -65,8 +65,8 @@ def generate(name, link, fps, idx, test_results, stopwatch_results):
 
     iou_table = generate_statistics({'iou': ious_flat})
 
-    generate_images(images, 'output' / link / 'images')
-    summary_path = 'output' / link / 'summary.html'
+    generate_images(images, outdir / link / 'images')
+    summary_path = outdir / link / 'summary.html'
     summary_path.parent.mkdir(parents=True, exist_ok=True)
     with open(summary_path, 'w') as f:
         f.write(template.render(
